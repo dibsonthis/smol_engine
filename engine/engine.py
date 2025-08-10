@@ -28,11 +28,12 @@ class Component:
         self.rotation = Transform()
         self.rigid_body = None
         self.data = {}
+        self.engine: Engine = None
 
     def init(self):
         pass
 
-    def update(self):
+    def update(self, delta_time: float):
         pass
 
     def render(self, window: Window, renderer: Renderer):
@@ -83,6 +84,9 @@ class Engine:
         # Register class methods as event handlers
         self.window.push_handlers(self)
 
+        self.previous_time = time.time()
+        self.delta_time = 0
+
     def start(self):
         self.running = True
 
@@ -92,12 +96,15 @@ class Engine:
         for component in self.components:
             component.init()
         while self.running:
+            current_time = time.time()
+            self.delta_time = current_time - self.previous_time
+            self.previous_time = current_time 
+
             if self.window.has_exit:
                 self.stop()
                 break
             for component in self.components:
-                component.update()
-            # time.sleep(self.sleep)  # Simulate time passing
+                component.update(self.delta_time)
 
             self.window.dispatch_events()  # process OS/window events
             self.window.clear()
@@ -131,6 +138,10 @@ class Engine:
                 self.unregister_component(component)
             component.destroy = destroy_patch
             component.__destroy__ = _destroy
+
+            # Add a reference to the engine
+            component.engine = self
+
             self.components.append(component)
 
     def unregister_component(self, component):

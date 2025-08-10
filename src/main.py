@@ -16,7 +16,7 @@ engine.register_component(scene)
 
 # engine.register_component(Entity(100, 100))
 
-for i in range(1, 6):
+for i in range(1, 21):
     engine.register_component(Entity(i * 100, i * 100))
 
 engine.sleep = 1
